@@ -1,51 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hyperdiscovery</title>
-  <style>
-    body {
-      font-family: Lato, Arial, sans;
-      background-color: #f8f8f8;
-      color: #222;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-    h3 {
-      font-size: 2.5em;
-      margin-bottom: 0.2em;
-      letter-spacing: 1px;
-    }
-    p {
-      font-size: 1.2em;
-      margin-top: 0;
-      margin-bottom: 1.5em;
-      color: #444;
-    }
-    .gcse-search {
-      width: 100%;
-      max-width: 600px;
-    }
-    input.gsc-input {
-      font-family: Helvetica, Arial, Sans !important;
-      font-size: 1em !important;
-    }
-    input.gsc-search-button {
-      font-family: Helvetica, Arial, Sans !important;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hyperdiscovery</title>
+<style>
+body {
+  font-family: Lato, Arial, sans;
+  background-color: #f8f8f8;
+  color: #222;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+h3 {
+  font-size: 2.5em;
+  margin-bottom: 0.2em;
+  letter-spacing: 1px;
+}
+p {
+  font-size: 1.2em;
+  margin-top: 0;
+  margin-bottom: 1.5em;
+  color: #444;
+}
+input {
+  font-size: 1.1em;
+  padding: 0.5em;
+  width: 300px;
+}
+#results {
+  max-width: 600px;
+  margin-top: 1em;
+  text-align: left;
+}
+.gcse-search {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 1em;
+}
+</style>
 </head>
 <body>
-  <h3>Hyperdiscovery</h3>
-  <p>Searching for anyone</p>
-  <script async src="https://cse.google.com/cse.js?cx=f53370d09636745f9"></script>
-  <div class="gcse-search"></div>
+<h3>Hyperdiscovery</h3>
+<p>Searching for anyone</p>
+<input id="searchBox" placeholder="Search…" autocomplete="off">
+<div id="results"></div>
+<script async src="https://cse.google.com/cse.js?cx=f53370d09636745f9"></script>
+<div class="gcse-search"></div>
+<script>
+const box = document.getElementById("searchBox");
+const results = document.getElementById("results");
+
+box.addEventListener("keydown", async e => {
+  if (e.key !== "Enter") return;
+
+  const query = box.value.trim();
+  results.innerHTML = "";
+  if (!query) return;
+
+  if (!query.includes(" ")) {
+    try {
+      const res = await fetch(
+        "https://api.dictionaryapi.dev/api/v2/entries/en/" +
+        encodeURIComponent(query)
+      );
+      const data = await res.json();
+      const entry = data[0];
+      const meaning = entry.meanings[0];
+      const def = meaning.definitions[0].definition;
+
+      results.innerHTML = `
+        <h4>${entry.word}</h4>
+        <p><em>${meaning.partOfSpeech}</em></p>
+        <p>${def}</p>
+      `;
+    } catch {
+      results.innerHTML = "<p>No dictionary entry found.</p>";
+    }
+  } else {
+    document.querySelector("input.gsc-input").value = query;
+    document.querySelector("button.gsc-search-button").click();
+  }
+});
+</script>
 </body>
+
 </html>
