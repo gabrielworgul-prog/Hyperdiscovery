@@ -39,10 +39,6 @@ input {
   margin-top: 1em;
   text-align: left;
 }
-.gcse-search input,
-.gcse-search button {
-  display: none;
-}
 </style>
 </head>
 <body>
@@ -50,8 +46,8 @@ input {
 <p>Searching for anyone</p>
 <input id="searchBox" placeholder="Search…" autocomplete="off">
 <div id="results"></div>
+<div class="gcse-searchresults-only"></div>
 <script async src="https://cse.google.com/cse.js?cx=f53370d09636745f9"></script>
-<div class="gcse-search"></div>
 <script>
 const box = document.getElementById("searchBox");
 const results = document.getElementById("results");
@@ -83,8 +79,14 @@ box.addEventListener("keydown", async e => {
       results.innerHTML = "<p>No dictionary entry found.</p>";
     }
   } else {
-    document.querySelector("input.gsc-input").value = query;
-    document.querySelector("button.gsc-search-button").click();
+    results.innerHTML = "";
+    const interval = setInterval(() => {
+      if (window.google && google.search && google.search.cse) {
+        google.search.cse.element.getElement("searchresults-only")
+          .execute(query);
+        clearInterval(interval);
+      }
+    }, 50);
   }
 });
 </script>
